@@ -54,12 +54,15 @@ public class ClassifyVibration extends PApplet {
 		//println(fftFeatures.length);
 		int ct = 0;
 		for (int i=0; i<fftFeatures.length; i++) {
-			if (fftFeatures[i] < 1E-5) {
+			if (fftFeatures[i] < 1E-4) {
 				ct ++;
 			}
+			
 			else {
-				fftFeatures[i] = fftFeatures[i] * 5;
+				fftFeatures[i] = fftFeatures[i];
+				res.measurements = fftFeatures.clone();
 			}
+			
 		}
 		if (ct >= fftFeatures.length * 0.9) {
 			if_nothing = true;
@@ -67,6 +70,7 @@ public class ClassifyVibration extends PApplet {
 		else {
 			if_nothing = false;
 		}
+		
 		return res;
 	}
 
@@ -126,7 +130,7 @@ public class ClassifyVibration extends PApplet {
 
 			/* the result of the FFT is normalized */
 			/* draw the line for frequency band i scaling it up by 40 to get more amplitude */
-			line( i, height, i, height - spectrum[i]*height*40);
+			line( i, height, i, height - spectrum[i]*height*80);
 			fftFeatures[i] = spectrum[i];
 		} 
 
