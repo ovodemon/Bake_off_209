@@ -23,6 +23,7 @@ public class ClassifyVibration extends PApplet {
 	String[] classNames = {"Nothing", "Zero", "One"};
 	int classIndex = 0;
 	int dataCount = 0;
+	int last_dataCount = 0;
 	boolean if_nothing = false;
 	String guessedLabel;
 	String previous_guessLabel; 
@@ -184,14 +185,29 @@ public class ClassifyVibration extends PApplet {
 				rect(370, 280, 100, 20);
 				fill(165, 42, 42);
 				rect(305, 140, 40, 160);
-				rect(260, 140, 40, 160);
-			}
-					
+				//rect(260, 140, 40, 160);
+			}		
 			
 		}else {
+			last_dataCount = dataCount;
 			text(classNames[classIndex], 20, 30);
 			dataCount = trainingData.get(classNames[classIndex]).size();
 			text("Data collected: " + dataCount, 20, 60);
+			if (classNames[classIndex] == "Zero") {
+				line(100, 300, 350, 300);
+				fill(0);
+				rect(350, 100, 20, 200);
+				rect(370, 280, 100, 20);
+			}
+			if (classNames[classIndex] == "One") {
+				line(100, 300, 350, 300);
+				fill(0);
+				rect(350, 100, 20, 200);
+				rect(370, 280, 100, 20);
+				fill(165, 42, 42);
+				rect(305, 140, 40, 160);
+				//rect(260, 140, 40, 160);
+			}
 		}
 	}
 	
