@@ -20,10 +20,19 @@ public class ClassifyVibration extends PApplet {
 	int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"quiet", "hand drill", "whistling", "class clapping"};
+	String[] classNames = {"Nothing", "Zero", "One", "Two"};
 	int classIndex = 0;
 	int dataCount = 0;
-
+	boolean if_nothing = false;
+	String guessedLabel;
+	String previous_guessLabel; 
+	int count = 0;
+	Map<String, List<DataInstance>> recordingData = new HashMap<>();
+	{for (String className : classNames){
+		recordingData.put(className, new ArrayList<DataInstance>());
+	}}
+	
+	
 	MLClassifier classifier;
 	
 	Map<String, List<DataInstance>> trainingData = new HashMap<>();
@@ -35,8 +44,25 @@ public class ClassifyVibration extends PApplet {
 		DataInstance res = new DataInstance();
 		res.label = label;
 		res.measurements = fftFeatures.clone();
+		//println(fftFeatures.length);
+		int ct = 0;
+		for (int i=0; i<fftFeatures.length; i++) {
+			if (fftFeatures[i] < 1E-5) {
+				ct ++;
+			}
+			else {
+				fftFeatures[i] = fftFeatures[i] * 5;
+			}
+		}
+		if (ct >= fftFeatures.length * 0.9) {
+			if_nothing = true;
+		}
+		else {
+			if_nothing = false;
+		}
 		return res;
 	}
+
 	
 	public static void main(String[] args) {
 		PApplet.main("ClassifyVibration");
@@ -100,11 +126,21 @@ public class ClassifyVibration extends PApplet {
 		fill(255);
 		textSize(30);
 		if(classifier != null) {
-			String guessedLabel = classifier.classify(captureInstance(null));
+			previous_guessLabel = guessedLabel;
+			guessedLabel = classifier.classify(captureInstance(null));
 			
 			// Yang: add code to stabilize your classification results
 			
 			text("classified as: " + guessedLabel, 20, 30);
+
+			if(previous_guessLabel != guessedLabel)
+			{
+				println(guessedLabel + ' ' + count + '\n');
+				count = 0;
+			}
+			count = count+1;
+			
+			
 		}else {
 			text(classNames[classIndex], 20, 30);
 			dataCount = trainingData.get(classNames[classIndex]).size();
@@ -130,6 +166,7 @@ public class ClassifyVibration extends PApplet {
 			}
 		}
 		
+		
 		else if (key == 's') {
 			// Yang: add code to save your trained model for later use
 			// println(classifier);
@@ -142,10 +179,28 @@ public class ClassifyVibration extends PApplet {
 			classifier.LoadModel();
 			println("Load");
 		}
-			
-		else {
-			trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
+		
+		else if (key == 'z') {
+			if (classNames[classIndex] == "Nothing") {
+				trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
+			}
+			captureInstance(classNames[classIndex]);
+			if (!if_nothing) {
+				trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
+				//recordingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
+				println("recording");
+			}
+			println(if_nothing);
 		}
+			
+		//else {
+		//	trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
+		//}
+	}
+
+	private Object key(char c) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
