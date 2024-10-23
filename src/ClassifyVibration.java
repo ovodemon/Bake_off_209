@@ -20,13 +20,19 @@ public class ClassifyVibration extends PApplet {
 	int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"Nothing", "Zero", "One", "Two"};
+	String[] classNames = {"Nothing", "Zero", "One"};
 	int classIndex = 0;
 	int dataCount = 0;
 	boolean if_nothing = false;
 	String guessedLabel;
 	String previous_guessLabel; 
+	String outputLabel;
+	String firstLabel = "Nothing";
 	int count = 0;
+	int Guess_ct = 0;
+	int Nothing_ct = 0;
+	int Zero_ct = 0;
+	int One_ct = 0;
 	Map<String, List<DataInstance>> recordingData = new HashMap<>();
 	{for (String className : classNames){
 		recordingData.put(className, new ArrayList<DataInstance>());
@@ -102,7 +108,7 @@ public class ClassifyVibration extends PApplet {
 		waveform.analyze();
 
 		beginShape();
-		  
+		/*  
 		for(int i = 0; i < nsamples; i++)
 		{
 			vertex(
@@ -110,7 +116,7 @@ public class ClassifyVibration extends PApplet {
 					map(waveform.data[i], -1, 1, 0, height)
 					);
 		}
-		
+		*/
 		endShape();
 
 		fft.analyze(spectrum);
@@ -126,20 +132,61 @@ public class ClassifyVibration extends PApplet {
 		fill(255);
 		textSize(30);
 		if(classifier != null) {
-			previous_guessLabel = guessedLabel;
-			guessedLabel = classifier.classify(captureInstance(null));
-			
 			// Yang: add code to stabilize your classification results
-			
-			text("classified as: " + guessedLabel, 20, 30);
-
-			if(previous_guessLabel != guessedLabel)
-			{
-				println(guessedLabel + ' ' + count + '\n');
-				count = 0;
+			if (Guess_ct < 25) {
+				guessedLabel = classifier.classify(captureInstance(null));
+				if (guessedLabel == "Nothing") {
+					Nothing_ct++;
+				}else if (guessedLabel == "Zero"){
+					if (firstLabel == "Nothing") { firstLabel = "Zero";}
+					Zero_ct++;
+				}else if (guessedLabel == "One") {
+					if (firstLabel == "Nothing") { firstLabel = "One";}
+					One_ct++;
+				}
+				Guess_ct ++;
+			}else {
+				if (Nothing_ct >= 25) {
+					outputLabel = "Nothing";
+				}else {
+					if (Zero_ct > One_ct) {
+						outputLabel = "Zero";
+					}else if (One_ct > Zero_ct) {
+						outputLabel = "One";
+					}else if (Zero_ct == One_ct) {
+						outputLabel = firstLabel;
+						println("FirstLabel used!!!");
+					}
+				}
+				println("Output: " + outputLabel);
+				println("Guess_ct: " + Guess_ct);
+				println("Nothing_ct: " + Nothing_ct);
+				println("Zero_ct: " + Zero_ct);
+				println("One_ct: " + One_ct);
+				Guess_ct = 0;
+				Nothing_ct = 0;
+				Zero_ct = 0;
+				One_ct = 0;
+				firstLabel = "Nothing";
 			}
-			count = count+1;
 			
+			text("classified as: " + outputLabel, 20, 30);
+			if (outputLabel == "Zero") {
+				line(100, 300, 350, 300);
+				fill(0);
+				rect(350, 100, 20, 200);
+				rect(370, 280, 100, 20);
+			}
+			if (outputLabel == "One") {
+				line(100, 300, 350, 300);
+				fill(0);
+				rect(350, 100, 20, 200);
+				rect(370, 280, 100, 20);
+				fill(165, 42, 42);
+				rect(305, 140, 40, 160);
+				rect(260, 140, 40, 160);
+			}
+					
 			
 		}else {
 			text(classNames[classIndex], 20, 30);
