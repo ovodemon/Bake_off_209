@@ -20,7 +20,7 @@ public class ClassifyVibration extends PApplet {
 	int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"Nothing", "Zero", "One"};
+	String[] classNames = {"Null", "Empty", "Fill"};
 	int classIndex = 0;
 	int dataCount = 0;
 	int last_dataCount = 0;
@@ -140,24 +140,24 @@ public class ClassifyVibration extends PApplet {
 			// Yang: add code to stabilize your classification results
 			if (Guess_ct < 25) {
 				guessedLabel = classifier.classify(captureInstance(null));
-				if (guessedLabel == "Nothing") {
+				if (guessedLabel == "Null") {
 					Nothing_ct++;
-				}else if (guessedLabel == "Zero"){
+				}else if (guessedLabel == "Empty"){
 					if (firstLabel == "Nothing") { firstLabel = "Zero";}
 					Zero_ct++;
-				}else if (guessedLabel == "One") {
+				}else if (guessedLabel == "Fill") {
 					if (firstLabel == "Nothing") { firstLabel = "One";}
 					One_ct++;
 				}
 				Guess_ct ++;
 			}else {
 				if (Nothing_ct >= 25) {
-					outputLabel = "Nothing";
+					outputLabel = "Null";
 				}else {
 					if (Zero_ct > One_ct) {
-						outputLabel = "Zero";
+						outputLabel = "Empty";
 					}else if (One_ct > Zero_ct) {
-						outputLabel = "One";
+						outputLabel = "Fill";
 					}else if (Zero_ct == One_ct) {
 						outputLabel = firstLabel;
 						println("FirstLabel used!!!");
@@ -172,17 +172,17 @@ public class ClassifyVibration extends PApplet {
 				Nothing_ct = 0;
 				Zero_ct = 0;
 				One_ct = 0;
-				firstLabel = "Nothing";
+				firstLabel = "Null";
 			}
 			
 			text("classified as: " + outputLabel, 20, 30);
-			if (outputLabel == "Zero") {
+			if (outputLabel == "Empty") {
 				line(100, 300, 350, 300);
 				fill(0);
 				rect(350, 100, 20, 200);
 				rect(370, 280, 100, 20);
 			}
-			if (outputLabel == "One") {
+			if (outputLabel == "Fill") {
 				line(100, 300, 350, 300);
 				fill(0);
 				rect(350, 100, 20, 200);
@@ -197,13 +197,13 @@ public class ClassifyVibration extends PApplet {
 			text(classNames[classIndex], 20, 30);
 			dataCount = trainingData.get(classNames[classIndex]).size();
 			text("Data collected: " + dataCount, 20, 60);
-			if (classNames[classIndex] == "Zero") {
+			if (classNames[classIndex] == "Empty") {
 				line(100, 300, 350, 300);
 				fill(0);
 				rect(350, 100, 20, 200);
 				rect(370, 280, 100, 20);
 			}
-			if (classNames[classIndex] == "One") {
+			if (classNames[classIndex] == "Fill") {
 				line(100, 300, 350, 300);
 				fill(0);
 				rect(350, 100, 20, 200);
